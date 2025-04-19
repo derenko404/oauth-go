@@ -31,7 +31,14 @@ func New(config *types.AppConfig, logger *slog.Logger) (*App, error) {
 		Logger: logger,
 	}
 
-	db, err := database.Connect(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
+	db, err := database.Connect(
+		config.DBUser,
+		config.DBPassword,
+		config.DBHost,
+		config.DBPort,
+		config.DBName,
+		config.AppLogLevel,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}

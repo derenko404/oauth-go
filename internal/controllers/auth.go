@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	DeviceIdCookieName   = "device_id"
+	DeviceIdCookieName = "device_id"
 )
 
 type authController struct {
@@ -59,14 +59,14 @@ func getLocation(ip string) (string, error) {
 
 func generateState(secret []byte) (string, error) {
 	claims := jwt.MapClaims{
-		"exp":   time.Now().Add(time.Minute * 15).Unix(), // 15 min expiry
+		"exp": time.Now().Add(time.Minute * 15).Unix(), // 15 min expiry
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(secret)
 }
 
-func validateState(jwtSecret []byte,tokenString string) bool {
+func validateState(jwtSecret []byte, tokenString string) bool {
 	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check that the signing method is HMAC (HS256)
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -84,7 +84,7 @@ func (controller *authController) SignIn(ctx *gin.Context) {
 	state, err := generateState([]byte(controller.app.Config.JwtSecret))
 
 	if err != nil {
-		controller.app.Logger.Debug("cannot generate state", "error", err)
+		controller.app.Logger.Error("cannot generate state", "error", err)
 		response.RespondError(ctx, response.ErrOAuth)
 		return
 	}
@@ -92,7 +92,7 @@ func (controller *authController) SignIn(ctx *gin.Context) {
 	url, err := controller.app.Services.OAuth.GetSignInUrl(provider, state)
 
 	if err != nil {
-		controller.app.Logger.Debug("error during sign-in", "error", err)
+		controller.app.Logger.Error("error during sign-in", "error", err)
 		response.RespondError(ctx, response.ErrOAuth)
 		return
 	}
@@ -115,7 +115,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindQuery(&query); err != nil {
-		controller.app.Logger.Debug("error binding query", "error", err)
+		controller.app.Logger.Error("error binding query", "error", err)
 		response.RespondError(ctx, response.ErrInvalidInput)
 		return
 	}
@@ -123,7 +123,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 	valid := validateState([]byte(controller.app.Config.JwtSecret), query.State)
 
 	if !valid {
-		controller.app.Logger.Debug("invalid oauth state")
+		controller.app.Logger.Info("invalid oauth state")
 		response.RespondError(ctx, response.ErrInvalidInput)
 		return
 	}
@@ -131,7 +131,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 	profile, err := controller.app.Services.OAuth.GetProfile(ctx.Request.Context(), provider, query.Code)
 
 	if err != nil {
-		controller.app.Logger.Debug("cannot get profile", "error", err)
+		controller.app.Logger.Error("cannot get profile", "error", err)
 		response.RespondError(ctx, response.ErrOAuth)
 		return
 	}
@@ -142,7 +142,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 	user, err = controller.app.Store.User.GetUserBy(ctx.Request.Context(), filters)
 
 	if err != nil {
-		controller.app.Logger.Debug("cannot get user", "error", err)
+		controller.app.Logger.Error("cannot get user", "error", err)
 
 		user, err = controller.app.Store.User.CreateUser(ctx.Request.Context(), &store.UserDto{
 			Name:           profile.Name,
@@ -153,7 +153,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 		})
 
 		if err != nil {
-			controller.app.Logger.Debug("failed to create user", "error", err)
+			controller.app.Logger.Error("failed to create user", "error", err)
 			response.RespondError(ctx, response.ErrInternalServerError)
 			return
 		}
@@ -189,7 +189,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 		})
 
 		if err != nil {
-			controller.app.Logger.Debug("failed to create session", "error", err)
+			controller.app.Logger.Error("failed to create session", "error", err)
 			response.RespondError(ctx, response.ErrInternalServerError)
 			return
 		}
@@ -197,7 +197,7 @@ func (controller *authController) HandleCallback(ctx *gin.Context) {
 
 	accessToken, refreshToken := controller.app.Services.Jwt.IssueTokensPair(user.ID, session.ID, user.Email)
 
-	controller.app.Logger.Debug("user signed in", "user", user, "session", session)
+	controller.app.Logger.Info("user signed in", "user", user, "session", session)
 
 	response.RespondSuccess(ctx, &handleCallbackResponse{
 		AccessToken:  accessToken,
@@ -286,7 +286,7 @@ func (controller *authController) SignOut(ctx *gin.Context) {
 
 	err = controller.app.Store.Session.DeleteSessionBy(ctx.Request.Context(), filters)
 	if err != nil {
-		controller.app.Logger.Debug("error deleting session", "error", err)
+		controller.app.Logger.Error("error deleting session", "error", err)
 		response.RespondError(ctx, response.ErrInternalServerError)
 		return
 	}

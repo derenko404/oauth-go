@@ -13,8 +13,11 @@ DB_URL = postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?s
 
 all: build
 
-run: 
+run:
 	go run $(MAIN)
+
+start-dev:
+	docker-compose up -d && air
 
 build:
 	go build -o $(BINARY) $(MAIN)
@@ -36,3 +39,6 @@ migrate-up:
 
 migrate-down:
 	migrate -path migrations -database $(DB_URL) down $(TARGET_VERSION)
+
+swagger:
+	swag init

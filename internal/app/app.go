@@ -21,7 +21,7 @@ type App struct {
 	Router   *gin.Engine
 	Store    *store.Store
 	Services *services.Services
-	rdb      *redis.Client
+	RDB      *redis.Client
 }
 
 func New(config *types.AppConfig, logger *slog.Logger) (*App, error) {
@@ -45,7 +45,7 @@ func New(config *types.AppConfig, logger *slog.Logger) (*App, error) {
 
 	app.DB = db
 
-	app.rdb = redis.NewClient(&redis.Options{
+	app.RDB = redis.NewClient(&redis.Options{
 		Addr:     net.JoinHostPort(app.Config.RedisHost, app.Config.RedisPort),
 		Password: "",
 		DB:       0,
@@ -63,31 +63,4 @@ func New(config *types.AppConfig, logger *slog.Logger) (*App, error) {
 
 func (app *App) Start() error {
 	return app.Router.Run(net.JoinHostPort(app.Config.AppHost, app.Config.AppPort))
-}
-
-func (app *App) HealthCheck(c *gin.Context) {
-	err := app.DB.Ping(c.Request.Context())
-	if err != nil {
-		app.Logger.Error("db ping error", "error", err)
-
-		c.JSON(500, gin.H{
-			"status": "db error",
-		})
-		return
-	}
-
-	_, err = app.rdb.Ping(c.Request.Context()).Result()
-
-	if err != nil {
-		app.Logger.Error("redis ping error", "error", err)
-
-		c.JSON(500, gin.H{
-			"status": "redis error",
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
 }

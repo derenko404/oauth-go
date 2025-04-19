@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"go-auth/internal/services"
 	"go-auth/internal/store"
-	"net/http"
+	"go-auth/pkg/response"
+	"log/slog"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-const ContextUserKey = "user"
+const contextUserKey = "user"
 
 func getTokenFromHeader(ctx *gin.Context) (string, error) {
 	authHeader := ctx.GetHeader("Authorization")
@@ -29,12 +30,12 @@ func getTokenFromHeader(ctx *gin.Context) (string, error) {
 	return tokenString, nil
 }
 
-func AuthMiddleware(store *store.Store, services *services.Services) gin.HandlerFunc {
+func AuthMiddleware(store *store.Store, services *services.Services, logger *slog.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// Retrieve the Authorization header
 		tokenString, err := getTokenFromHeader(ctx)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			logger.Debug("cannot get Authorization header", "error", err)
+			ctx.AbortWithStatusJSON(response.ErrUnauthorized.Code, response.ErrUnauthorized)
 			return
 		}
 
@@ -42,7 +43,8 @@ func AuthMiddleware(store *store.Store, services *services.Services) gin.Handler
 		token, err := services.Jwt.VerifyToken(tokenString)
 
 		if err != nil || !token.Valid {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token is not valid"})
+			logger.Debug("cannot validate token", "error", err)
+			ctx.AbortWithStatusJSON(response.ErrUnauthorized.Code, response.ErrUnauthorized)
 			return
 		}
 
@@ -50,7 +52,8 @@ func AuthMiddleware(store *store.Store, services *services.Services) gin.Handler
 		claims, err := services.Jwt.GetClaims(token)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "failed to cast claims to CustomClaims"})
+			logger.Debug("cannot get claims", "error", err)
+			ctx.AbortWithStatusJSON(response.ErrUnauthorized.Code, response.ErrUnauthorized)
 			return
 		}
 
@@ -60,7 +63,8 @@ func AuthMiddleware(store *store.Store, services *services.Services) gin.Handler
 
 		_, err = store.Session.GetSessionBy(ctx.Request.Context(), filters)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "cannot find session"})
+			logger.Debug("cannot get session", "error", err)
+			ctx.AbortWithStatusJSON(response.ErrUnauthorized.Code, response.ErrUnauthorized)
 			return
 		}
 
@@ -71,11 +75,12 @@ func AuthMiddleware(store *store.Store, services *services.Services) gin.Handler
 		user, err := store.User.GetUserBy(ctx.Request.Context(), filters)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "cannot find user"})
+			logger.Debug("cannot get user", "error", err)
+			ctx.AbortWithStatusJSON(response.ErrUnauthorized.Code, response.ErrUnauthorized)
 			return
 		}
 
-		ctx.Set(ContextUserKey, user)
+		ctx.Set(contextUserKey, user)
 
 		ctx.Next()
 	}

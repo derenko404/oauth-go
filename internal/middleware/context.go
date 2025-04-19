@@ -8,7 +8,7 @@ import (
 )
 
 func GetUserFromContext(c *gin.Context) (*store.User, bool) {
-	val, ok := c.Get(ContextUserKey)
+	val, ok := c.Get(contextUserKey)
 	if !ok {
 		return nil, false
 	}

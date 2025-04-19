@@ -7,23 +7,27 @@ type Context interface {
 	Status(code int)
 }
 
-type APIResponse struct {
-	Success bool      `json:"success"`
-	Data    any       `json:"data,omitempty"`
-	Error   *APIError `json:"error,omitempty"`
+type APISuccessResponse struct {
+	Success bool `json:"success"`
+	Data    any  `json:"data,omitempty"`
 }
 
 type APIError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Details any    `json:"details,omitempty"`
+	Code    int    `json:"code" example:"404"`
+	Message string `json:"message" example:"NOT_FOUND"`
+	Details string `json:"details,omitempty" example:"The requested resource was not found."`
+}
+
+type APIErrorResponse struct {
+	Error   *APIError `json:"error"`
+	Success bool      `json:"success" example:"false"`
 }
 
 func (e *APIError) Error() string {
 	return e.Message
 }
 
-func NewError(code int, message string, details any) *APIError {
+func NewError(code int, message string, details string) *APIError {
 	return &APIError{
 		Code:    code,
 		Message: message,
@@ -40,14 +44,14 @@ var (
 )
 
 func RespondSuccess(c Context, data any) {
-	c.JSON(http.StatusOK, APIResponse{
+	c.JSON(http.StatusOK, APISuccessResponse{
 		Success: true,
 		Data:    data,
 	})
 }
 
 func RespondCreated(c Context, data any) {
-	c.JSON(http.StatusCreated, APIResponse{
+	c.JSON(http.StatusCreated, APISuccessResponse{
 		Success: true,
 		Data:    data,
 	})
@@ -58,7 +62,7 @@ func RespondNoContent(c Context) {
 }
 
 func RespondError(c Context, err *APIError) {
-	c.JSON(err.Code, APIResponse{
+	c.JSON(err.Code, APIErrorResponse{
 		Success: false,
 		Error:   err,
 	})

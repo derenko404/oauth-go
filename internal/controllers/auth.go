@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/derenko404/ipapi-go"
@@ -78,6 +77,19 @@ func validateState(jwtSecret []byte, tokenString string) bool {
 	return err == nil
 }
 
+type signInResponse struct {
+	URL string `json:"url"`
+}
+
+// @Summary     Sign In
+// @Description Redirects to selected OAuth provider login URL, not working in swagger
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       provider path string true "Selected provider, available options: google, github"
+// @Success     200 {object} response.APISuccessResponse{data=signInResponse}
+// @Failure     400 {object} response.APIErrorResponse
+// @Router      /auth/sign-in/{provider} [get]
 func (controller *authController) SignIn(ctx *gin.Context) {
 	provider := ctx.Param("provider")
 
@@ -97,7 +109,9 @@ func (controller *authController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusTemporaryRedirect, url)
+	response.RespondSuccess(ctx, &signInResponse{
+		URL: url,
+	})
 }
 
 type handleCallbackResponse struct {
@@ -106,6 +120,18 @@ type handleCallbackResponse struct {
 	DeviceID     string `json:"device_id"`
 }
 
+// @Summary		Endpoint for OAuth providers
+// @Description	This endpoint should be called only by OAuth providers
+// @Tags			  auth
+// @Accept			json
+// @Produce		  json
+// @Param state path string true "OAuth state string"
+// @Param code path string true "OAuth code"
+// @Success     200 {object} response.APISuccessResponse{data=handleCallbackResponse}
+// @Failure		  400	{object} response.APIErrorResponse
+// @Failure		  422	{object} response.APIErrorResponse
+// @Failure		  500	{object} response.APIErrorResponse
+// @Router			/auth/handle-callback [get]
 func (controller *authController) HandleCallback(ctx *gin.Context) {
 	provider := ctx.Param("provider")
 
@@ -210,6 +236,17 @@ type getMeResponse struct {
 	User *store.User `json:"user"`
 }
 
+// @Summary		Me
+// @Description	Returns current user information
+// @Tags			  auth
+// @Security BearerAuth
+// @Accept			json
+// @Produce		  json
+// @Success     200 {object} response.APISuccessResponse{data=getMeResponse}
+// @Failure		  400	{object} response.APIErrorResponse
+// @Failure		  422	{object} response.APIErrorResponse
+// @Failure		  500	{object} response.APIErrorResponse
+// @Router			/auth/me [get]
 func (controller *authController) GetMe(ctx *gin.Context) {
 	user, err := middleware.MustGetUserFromContext(ctx)
 
@@ -221,15 +258,27 @@ func (controller *authController) GetMe(ctx *gin.Context) {
 	response.RespondSuccess(ctx, &getMeResponse{User: user})
 }
 
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
 type refreshTokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
+// @Summary		Refresh Token
+// @Description	Refreshe jwt token
+// @Tags			  auth
+// @Accept			json
+// @Produce		  json
+// @Param refresh_token body refreshTokenRequest true "jwt refresh token"
+// @Success     200 {object} response.APISuccessResponse{data=refreshTokenResponse}
+// @Failure		  403	{object} response.APIErrorResponse
+// @Failure		  422	{object} response.APIErrorResponse
+// @Router			/auth/refresh [post]
 func (controller *authController) RefreshToken(ctx *gin.Context) {
-	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"`
-	}
+	var req refreshTokenRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.RespondError(ctx, response.ErrInvalidInput)
@@ -271,6 +320,16 @@ func (controller *authController) RefreshToken(ctx *gin.Context) {
 
 type signOutResponse struct{}
 
+// @Summary		Sign Out
+// @Description	Sign out current user
+// @Tags			  auth
+// @Security BearerAuth
+// @Accept			json
+// @Produce		  json
+// @Success     200 {object} response.APISuccessResponse
+// @Failure		  403	{object} response.APIErrorResponse
+// @Failure		  500	{object} response.APIErrorResponse
+// @Router			/sign-out [get]
 func (controller *authController) SignOut(ctx *gin.Context) {
 	user, err := middleware.MustGetUserFromContext(ctx)
 

@@ -1,9 +1,9 @@
 package services
 
 import (
-	jwtservice "go-auth/internal/services/jwt"
-	ouathservice "go-auth/internal/services/oauth"
-	"go-auth/internal/types"
+	jwtservice "oauth-go/internal/services/jwt"
+	ouathservice "oauth-go/internal/services/oauth"
+	"oauth-go/internal/types"
 )
 
 type Services struct {

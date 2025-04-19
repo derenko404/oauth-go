@@ -1,6 +1,6 @@
 include .env
 
-APP_NAME = go-auth
+APP_NAME = oauth-go
 MAIN = ./main.go
 BUILD_DIR = bin
 BINARY = $(BUILD_DIR)/$(APP_NAME)

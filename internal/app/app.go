@@ -2,12 +2,12 @@ package app
 
 import (
 	"fmt"
-	"go-auth/internal/services"
-	"go-auth/internal/store"
-	"go-auth/internal/types"
-	"go-auth/pkg/database"
 	"log/slog"
 	"net"
+	"oauth-go/internal/services"
+	"oauth-go/internal/store"
+	"oauth-go/internal/types"
+	"oauth-go/pkg/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"

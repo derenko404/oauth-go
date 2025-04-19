@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"go-auth/internal/app"
+	"oauth-go/internal/app"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"go-auth/pkg/logger"
+	"oauth-go/pkg/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

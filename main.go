@@ -1,23 +1,23 @@
 package main
 
 import (
-	"go-auth/internal/app"
-	"go-auth/internal/controllers"
-	"go-auth/internal/middleware"
-	"go-auth/internal/types"
-	"go-auth/pkg/configurator"
-	"go-auth/pkg/logger"
+	"oauth-go/internal/app"
+	"oauth-go/internal/controllers"
+	"oauth-go/internal/middleware"
+	"oauth-go/internal/types"
+	"oauth-go/pkg/configurator"
+	"oauth-go/pkg/logger"
 	"os"
 
-	docs "go-auth/docs"
+	docs "oauth-go/docs"
 
 	files "github.com/swaggo/files"
 	swagger "github.com/swaggo/gin-swagger"
 )
 
-// @title           Swagger go-auth API
+// @title           Swagger oauth-go API
 // @version         1.0
-// @description     This is a sample go-auth server.
+// @description     This is a sample oauth-go server.
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization

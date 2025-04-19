@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"fmt"
-	"go-auth/internal/services"
-	"go-auth/internal/store"
-	"go-auth/pkg/response"
 	"log/slog"
+	"oauth-go/internal/services"
+	"oauth-go/internal/store"
+	"oauth-go/pkg/response"
 	"strings"
 
 	"github.com/gin-gonic/gin"

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"go-auth/internal/store"
+	"oauth-go/internal/store"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,7 +2,7 @@ package jwtservice
 
 import (
 	"fmt"
-	"go-auth/internal/types"
+	"oauth-go/internal/types"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

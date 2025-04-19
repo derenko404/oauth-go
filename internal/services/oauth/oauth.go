@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-auth/internal/types"
 	"io"
 	"net/http"
+	"oauth-go/internal/types"
 	"slices"
 
 	"golang.org/x/oauth2"

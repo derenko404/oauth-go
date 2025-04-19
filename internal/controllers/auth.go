@@ -9,11 +9,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
-	"go-auth/internal/app"
-	"go-auth/internal/middleware"
-	"go-auth/internal/store"
-	"go-auth/pkg/cookieutils"
-	"go-auth/pkg/response"
+	"oauth-go/internal/app"
+	"oauth-go/internal/middleware"
+	"oauth-go/internal/store"
+	"oauth-go/pkg/cookieutils"
+	"oauth-go/pkg/response"
 )
 
 var (

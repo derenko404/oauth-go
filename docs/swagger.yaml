@@ -2,7 +2,7 @@ definitions:
   controllers.getMeResponse:
     properties:
       user:
-        $ref: '#/definitions/store.User'
+        $ref: "#/definitions/store.User"
     type: object
   controllers.handleCallbackResponse:
     properties:
@@ -24,7 +24,7 @@ definitions:
       refresh_token:
         type: string
     required:
-    - refresh_token
+      - refresh_token
     type: object
   controllers.refreshTokenResponse:
     properties:
@@ -53,7 +53,7 @@ definitions:
   response.APIErrorResponse:
     properties:
       error:
-        $ref: '#/definitions/response.APIError'
+        $ref: "#/definitions/response.APIError"
       success:
         example: false
         type: boolean
@@ -83,197 +83,198 @@ definitions:
     type: object
 info:
   contact: {}
-  description: This is a sample go-auth server.
-  title: Swagger go-auth API
+  description: This is a sample oauth-go server.
+  title: Swagger oauth-go API
   version: "1.0"
 paths:
   /auth/handle-callback:
     get:
       consumes:
-      - application/json
+        - application/json
       description: This endpoint should be called only by OAuth providers
       parameters:
-      - description: OAuth state string
-        in: path
-        name: state
-        required: true
-        type: string
-      - description: OAuth code
-        in: path
-        name: code
-        required: true
-        type: string
+        - description: OAuth state string
+          in: path
+          name: state
+          required: true
+          type: string
+        - description: OAuth code
+          in: path
+          name: code
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.APISuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/controllers.handleCallbackResponse'
-              type: object
+              - $ref: "#/definitions/response.APISuccessResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/controllers.handleCallbackResponse"
+                type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
       summary: Endpoint for OAuth providers
       tags:
-      - auth
+        - auth
   /auth/me:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Returns current user information
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.APISuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/controllers.getMeResponse'
-              type: object
+              - $ref: "#/definitions/response.APISuccessResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/controllers.getMeResponse"
+                type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Me
       tags:
-      - auth
+        - auth
   /auth/refresh:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Refreshe jwt token
       parameters:
-      - description: jwt refresh token
-        in: body
-        name: refresh_token
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.refreshTokenRequest'
+        - description: jwt refresh token
+          in: body
+          name: refresh_token
+          required: true
+          schema:
+            $ref: "#/definitions/controllers.refreshTokenRequest"
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.APISuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/controllers.refreshTokenResponse'
-              type: object
+              - $ref: "#/definitions/response.APISuccessResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/controllers.refreshTokenResponse"
+                type: object
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "422":
           description: Unprocessable Entity
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
       summary: Refresh Token
       tags:
-      - auth
+        - auth
   /auth/sign-in/{provider}:
     get:
       consumes:
-      - application/json
-      description: Redirects to selected OAuth provider login URL, not working in
+        - application/json
+      description:
+        Redirects to selected OAuth provider login URL, not working in
         swagger
       parameters:
-      - description: 'Selected provider, available options: google, github'
-        in: path
-        name: provider
-        required: true
-        type: string
+        - description: "Selected provider, available options: google, github"
+          in: path
+          name: provider
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/response.APISuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/controllers.signInResponse'
-              type: object
+              - $ref: "#/definitions/response.APISuccessResponse"
+              - properties:
+                  data:
+                    $ref: "#/definitions/controllers.signInResponse"
+                type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
       summary: Sign In
       tags:
-      - auth
+        - auth
   /health:
     get:
       consumes:
-      - application/json
+        - application/json
       description: App health check
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: All is ok
           schema:
-            $ref: '#/definitions/controllers.healthCheckResponse'
+            $ref: "#/definitions/controllers.healthCheckResponse"
         "500":
           description: Database error
           schema:
-            $ref: '#/definitions/controllers.healthCheckResponse'
+            $ref: "#/definitions/controllers.healthCheckResponse"
       summary: Health
       tags:
-      - health
+        - health
   /sign-out:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Sign out current user
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.APISuccessResponse'
+            $ref: "#/definitions/response.APISuccessResponse"
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.APIErrorResponse'
+            $ref: "#/definitions/response.APIErrorResponse"
       security:
-      - BearerAuth: []
+        - BearerAuth: []
       summary: Sign Out
       tags:
-      - auth
+        - auth
 securityDefinitions:
   BearerAuth:
     in: header
